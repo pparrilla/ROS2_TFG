@@ -18,6 +18,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Sensor.msg"
   "msg/SensorArray.msg"
+  "srv/SensorArea.srv"
 )
 
 ament_package()

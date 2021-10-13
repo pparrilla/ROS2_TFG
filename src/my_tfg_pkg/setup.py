@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             "sensor_node = my_tfg_pkg.sensor_node:main",
-            "controller_node = my_tfg_pkg.controller_node:main"
+            "controller_node = my_tfg_pkg.controller_node:main",
+            "heater_node = my_tfg_pkg.heater_node:main"
         ],
     },
 )
