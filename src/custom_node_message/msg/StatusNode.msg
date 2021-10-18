@@ -1,0 +1,3 @@
+bool is_working
+uint16 device_id
+Position position
