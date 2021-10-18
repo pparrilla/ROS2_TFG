@@ -21,7 +21,7 @@ class WindowNode(Node):
 
         self.temperature_subscriber_ = self.create_subscription(
             FloatDataNode, "temperature", self.callback_sensor_data, 10)
-        self.get_logger().info("Windows has been started.")
+        self.get_logger().info("Window_" + str(self.status_node_.device_id) + " has been started.")
 
     def callback_sensor_data(self, msg):
         self.get_logger().info("Device id: " + str(msg.device_id) + " Temperature: " + str(msg.data))

@@ -23,7 +23,9 @@ setup(
             "sensor_node = my_tfg_pkg.sensor_node:main",
             "controller_node = my_tfg_pkg.controller_node:main",
             "heater_node = my_tfg_pkg.heater_node:main",
-            "window_node = my_tfg_pkg.window_node:main"
+            "window_node = my_tfg_pkg.window_node:main",
+            "irradiance_publisher = my_tfg_pkg.irradiance_publisher:main",
+            "temp_hum_publisher = my_tfg_pkg.temp_hum_publisher:main"
         ],
     },
 )
