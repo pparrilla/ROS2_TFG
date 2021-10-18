@@ -47,11 +47,11 @@ void subscription_callback(const void * msgin)
 			msg->position.x,
 			msg->position.y,
 			msg->device_id);
-	if (msg->data >= temperature_to_act && !msg_status.is_working) {
-		msg_status.is_working = true;
+	if (msg->data >= temperature_to_act && msg_status.work_status == 0) {
+		msg_status.work_status = 1;
 		rcl_publish(&status_publisher, &msg_status, NULL);
-	} else if ( msg->data < temperature_to_act && msg_status.is_working) {
-		msg_status.is_working = false;
+	} else if ( msg->data < temperature_to_act && msg_status.work_status != 0) {
+		msg_status.work_status = 0;
 		rcl_publish(&status_publisher, &msg_status, NULL);
 	}
 }
@@ -99,7 +99,7 @@ void appMain(void * arg)
 	custom_node_message__msg__FloatDataNode__init(&msg_temperature);
 	custom_node_message__msg__StatusNode__init(&msg_status);
 
-	msg_status.is_working = false;
+	msg_status.work_status = 0;
 	msg_status.position.x = pos_x;
 	msg_status.position.y = pos_y;
 

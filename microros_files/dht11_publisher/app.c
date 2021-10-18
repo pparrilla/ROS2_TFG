@@ -48,12 +48,12 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time)
         {
             msg_temperature.data = temperature;
             msg_humidity.data = humidity;
-			msg_status.is_working = true;
+			msg_status.work_status = 1;
         }
         else
         {
             printf("Could not read data from sensor\n");
-			msg_status.is_working = false;
+			msg_status.work_status = 0;
         }
     }
 }
@@ -123,7 +123,7 @@ void appMain(void * arg)
 
 	msg_temperature.data = 0;
 	msg_humidity.data = 0;
-	msg_status.is_working = false;
+	msg_status.work_status = 0;
 
 
 	while(1){
