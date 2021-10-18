@@ -11,7 +11,7 @@ datos recopilados, y ordenar a otros actuar en consecuencia.
 En principio este trabajo se iba a realizar utilizando un único ordenador con diferentes máquinas virtuales
 o servicios ejecutando, pero tras hablarlo con el tutor y gracias al material disponible, se va a desplegar
 en varios ordenadores, incluyendo alguna Raspberry Pi, además de intentar abaratar costos con el uso de
-microcontroladores como el ESP32. Para este último es necesario el uso de MicroPython y MicroROS. \\
+microcontroladores como el ESP32. Para este último es necesario el uso de MicroROS, utilizando lenguaje C. \\
 Por último me gustaría programar un dashboard donde poder visualizar estos datos con gráficas, gracias
 a Angular y alguna base de datos como Firebase.
 
@@ -53,11 +53,11 @@ ros2 launch my_tfg_bringup my_tfg.launch.py
 
 ## To do
 
-- [ ] Implementar en ESP32
+- [x] Implementar en ESP32
 - [ ] Análisis de todo el trabajo previo y comparación con otras tecnologías
-- [ ] Realizar diagramas de comunicación de todo el entorno de trabajo
+- [x] Realizar diagramas de comunicación de todo el entorno de trabajo
 - [ ] Aplicar nuevos nodos en función de proyectos de otras empresas.
-- [ ] Crear interfaz de usuario para la visualización de datos
+- [x] Crear interfaz de usuario para la visualización de datos
 - [ ] Mejorar documentación, añadiendo referencias, enlaces, imágenes, tablas..
 - [ ] Probar diferentes middleware de dds y hacer comparativas haciendo uso de algún benchmark
 
@@ -72,8 +72,12 @@ ros2 launch my_tfg_bringup my_tfg.launch.py
 - [Agroespia](https://agroespia.com/)
 - [The Robotics Back-End](https://roboticsbackend.com/)
 - [Espressif](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
+- [Custom QoS in Micro-ROS](https://micro.ros.org/docs/tutorials/advanced/create_dds_entities_by_ref/)
 - [Raspberry Pi Pico C/C++ SDK](https://datasheets.raspberrypi.org/pico/raspberry-pi-pico-c-sdk.pdf)
 - [Ros-Industrial Consortium Europe](https://rosindustrial.org/news/tag/ROS2)
 - [Red teaming the Robot Operating System in industry, Cybersecurity and Robotics, Victor Mayoral Vilches](https://cybersecurityrobotics.net/red-teaming-the-ros-in-industry/)
 - [Open Robotics Meets the Open Road, Youtube, The Decoded Show](https://www.youtube.com/watch?v=fAUTJa7Nrdc)
 - [The Robotic Edge, Roger S. Barga](https://static1.squarespace.com/static/51df34b1e4b08840dcfd2841/t/5e74ded67fdc5c0278f0c60d/1584717530256/RSBarga+ROS+Industrial+Americas+2020.pdf)
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [Firebase Docs](https://firebase.google.com/docs/)
+- [Angular](https://angular.io/)
