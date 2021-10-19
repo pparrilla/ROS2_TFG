@@ -21,6 +21,9 @@ class WindowNode(Node):
 
         self.temperature_subscriber_ = self.create_subscription(
             FloatDataNode, "temperature", self.callback_sensor_data, 10)
+        self.status_publisher_ = self.create_publisher(
+            StatusNode, "status_actuator", 10)
+        self.status_timer_ = self.create_timer(30, self.publish_status)
         self.get_logger().info("Window_" + str(self.status_node_.device_id) + " has been started.")
 
     def callback_sensor_data(self, msg):
@@ -28,9 +31,11 @@ class WindowNode(Node):
         if abs(msg.position.x - self.status_node_.position.x) < 3.0 and abs(msg.position.y - self.status_node_.position.y) < 3.0:
             if msg.data >= self.temperature_to_act_ and self.status_node_.work_status == 0:
                 self.status_node_.work_status = 1
+                self.publish_status()
                 self.get_logger().info("window_" + str(self.status_node_.device_id) + " is openning")
             elif msg.data < self.temperature_to_act_ and self.status_node_.work_status != 0:
                 self.status_node_.work_status = 0
+                self.publish_status()
                 self.get_logger().info("window_" + str(self.status_node_.device_id) + " is closing")
 
     def publish_status(self):

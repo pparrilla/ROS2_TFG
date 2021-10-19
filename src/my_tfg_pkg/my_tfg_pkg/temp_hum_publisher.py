@@ -26,10 +26,10 @@ class TemperatureHumidityNode(Node):
         self.temperature_publisher_ = self.create_publisher(FloatDataNode, "temperature", 10)
         self.humidity_publisher_ = self.create_publisher(FloatDataNode, "humidity", 10)
 
-        self.sensor_timer_ = self.create_timer(30.0, self.publish_temperature_data)
-        self.sensor_timer_ = self.create_timer(45.0, self.publish_humidity_data)
+        self.sensor_timer_ = self.create_timer(5.0, self.publish_temperature_data)
+        self.sensor_timer_ = self.create_timer(7.0, self.publish_humidity_data)
 
-        self.get_logger().info("Irrigation_" + str(self.temperature_msg_.device_id) + " has been started")
+        self.get_logger().info("Temp_Hum_Sensor_" + str(self.temperature_msg_.device_id) + " has been started")
 
 
     def publish_temperature_data(self):
