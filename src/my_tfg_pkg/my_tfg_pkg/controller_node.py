@@ -1,49 +1,80 @@
 #!/usr/bin/env python3
 from functools import partial
+import json
+import time
 import rclpy
 from rclpy.node import Node
 
-from my_tfg_interfaces.msg import Sensor
+from custom_node_message.msg import FloatDataNode, StatusNode
 from my_tfg_interfaces.srv import SensorArea
 
 
 class ControllerNode(Node):
     def __init__(self):
-        super().__init__("controller")  # Node name
-        self.subscriber_ = self.create_subscription(
-            Sensor, "sensor_data", self.callback_sensor_data, 10)
-        self.get_logger().info("Controller has been started.")
+        super().__init__("controller_1")  # Node name
+        self.status_controller_ = StatusNode()
 
-    def callback_sensor_data(self, msg):
-        self.get_logger().info("Name " + str(msg.name))
+        self.status_controller_.device_id = 1
+        self.status_controller_.work_status = 1
+        self.status_controller_.position.x = 0.0
+        self.status_controller_.position.y = 0.0
+        self.data_nodes_ = { "temperature": [], "humidity": [], "irrigation": [], "status": []}
+        self.status_nodes_ = []
+        self.position_nodes_ = {}
+        self.len_position_nodes = 0
+        self.json_file_name_ = "data_" + str(self.status_controller_.device_id) + ".json"
 
-        if msg.temperature >= 12.0:
-            self.get_logger().info("Warning low temperature ")
-            self.call_heater(msg.pos_x, msg.pos_y)
 
-        self.get_logger().info("Temperature " + str(msg.temperature))
-        self.get_logger().info("Humidity " + str(msg.humidity))
+        # Create all subscribers
+        self.temperature_subscriber_ = self.create_subscription(
+            FloatDataNode, "temperature", self.callback_temperature, 10)
 
-    def call_heater(self, pos_x, pos_y):
-        client = self.create_client(SensorArea, "sensor_area")
-        while not client.wait_for_service(1.0):
-            self.get_logger().warn("Waiting for heater")
+        self.humidity_subscriber_ = self.create_subscription(
+            FloatDataNode, "humidity", self.callback_humidity, 10)
 
-        request = SensorArea.Request()
-        request.pos_x = pos_x
-        request.pos_y = pos_y
+        self.irrigation_subscriber_ = self.create_subscription(
+            FloatDataNode, "irrigation", self.callback_irrigation, 10)
 
-        future = client.call_async(request)
-        future.add_done_callback(
-            partial(self.callback_call_heater, pos_x=pos_x, pos_y=pos_y))
+        self.status_subscriber_ = self.create_subscription(
+            FloatDataNode, "status_actuator", self.callback_status, 10)
 
-    def callback_call_heater(self, future, pos_x, pos_y):
-        try:
-            response = future.result()
-            self.get_logger().info("Heat sensor pos x:" + str(pos_x) + " pos y:" + str(pos_y))
+        self.save_timer_ = self.create_timer(60, self.save_data)
 
-        except Exception as e:
-            self.get_logger().error("Service call failed %r" % (e,))
+        # Needed to create some publishers and timer
+        self.get_logger().info("Controller_" + str(self.status_controller_.device_id) + " has been started.")
+
+    def callback_temperature(self, msg):
+        self.get_logger().info("Temperature: " + str(msg.data))
+        self.add_data_to_list("temperature", msg)
+
+    def callback_humidity(self, msg):
+        self.get_logger().info("Humidity: " + str(msg.data))
+        self.add_data_to_list("humidity", msg)
+
+    def callback_irrigation(self, msg):
+        self.get_logger().info("Irrigaiton: " + str(msg.data))
+        self.add_data_to_list("irrigation", msg)
+
+    def callback_status(self, msg):
+        self.add_data_to_list("status", msg)
+
+    def add_data_to_list(self, type, msg):
+        list_data = {
+            "device_id" : msg.device_id,
+            "value" : msg.data,
+            "timestamp" : time.time()
+        }
+        self.data_nodes_[type].append(list_data)
+
+    def save_data(self):
+        self.get_logger().info("Saving in " + self.json_file_name_ )
+        with open(self.json_file_name_, 'w') as outfile:
+            json.dump(self.data_nodes_, outfile)
+
+    def clean_data(self):
+        self.data_nodes_ = { "temperature": [], "humidity": [], "irrigation": [], "status": []}
+        self.status_nodes_ = []
+
 
 
 def main(args=None):
