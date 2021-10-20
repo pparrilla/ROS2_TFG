@@ -5,8 +5,7 @@ import time
 import rclpy
 from rclpy.node import Node
 
-from custom_node_message.msg import FloatDataNode, StatusNode
-from my_tfg_interfaces.srv import SensorArea
+from my_tfg_interfaces.msg import FloatDataNode, StatusNode
 
 
 class ControllerNode(Node):

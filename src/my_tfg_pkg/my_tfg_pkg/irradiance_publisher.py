@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 import random
 
-from custom_node_message.msg import FloatDataNode
+from my_tfg_interfaces.msg import FloatDataNode
 
 class IrradianceNode(Node):
     def __init__(self):

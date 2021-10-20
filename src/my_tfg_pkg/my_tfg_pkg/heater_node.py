@@ -2,7 +2,7 @@
 import rclpy
 from rclpy.node import Node
 
-from custom_node_message.msg import FloatDataNode, StatusNode
+from my_tfg_interfaces.msg import FloatDataNode, StatusNode
 
 
 class HeaterNode(Node):

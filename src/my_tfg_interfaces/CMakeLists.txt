@@ -17,6 +17,9 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Sensor.msg"
+  "msg/FloatDataNode.msg"
+  "msg/StatusNode.msg"
+  "msg/Position.msg"
   "msg/SensorArray.msg"
   "srv/SensorArea.srv"
 )

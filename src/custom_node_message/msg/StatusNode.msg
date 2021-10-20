@@ -1,3 +1,0 @@
-uint8 work_status
-uint16 device_id
-Position position

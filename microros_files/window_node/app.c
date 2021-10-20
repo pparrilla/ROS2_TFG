@@ -3,8 +3,8 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 
-#include <custom_node_message/msg/float_data_node.h>
-#include <custom_node_message/msg/status_node.h>
+#include <my_tfg_interfaces/msg/float_data_node.h>
+#include <my_tfg_interfaces/msg/status_node.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -20,8 +20,8 @@
 rcl_subscription_t temperature_subscriber;
 rcl_publisher_t status_publisher;
 
-custom_node_message__msg__FloatDataNode msg_temperature;
-custom_node_message__msg__StatusNode msg_status;
+my_tfg_interfaces__msg__FloatDataNode msg_temperature;
+my_tfg_interfaces__msg__StatusNode msg_status;
 
 
 const float temperature_to_act = 20.0;
@@ -41,7 +41,7 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time)
 
 void subscription_callback(const void * msgin)
 {
-	const custom_node_message__msg__FloatDataNode * msg = (const custom_node_message__msg__FloatDataNode *)msgin;
+	const my_tfg_interfaces__msg__FloatDataNode * msg = (const my_tfg_interfaces__msg__FloatDataNode *)msgin;
 	printf("Temperature: %f\n From x: %f y: %f\n Device id: %d\n",
 			msg->data,
 			msg->position.x,
@@ -72,13 +72,13 @@ void appMain(void * arg)
 	RCCHECK(rclc_subscription_init_default(
 		&temperature_subscriber,
 		&node,
-		ROSIDL_GET_MSG_TYPE_SUPPORT(custom_node_message, msg, FloatDataNode),
+		ROSIDL_GET_MSG_TYPE_SUPPORT(my_tfg_interfaces, msg, FloatDataNode),
 		"temperature"));
 
 	RCCHECK(rclc_publisher_init_default(
 		&status_publisher,
 		&node,
-		ROSIDL_GET_MSG_TYPE_SUPPORT(custom_node_message, msg, StatusNode),
+		ROSIDL_GET_MSG_TYPE_SUPPORT(my_tfg_interfaces, msg, StatusNode),
 		"status"));
 
 	// create timer,
@@ -96,8 +96,8 @@ void appMain(void * arg)
 	RCCHECK(rclc_executor_add_timer(&executor, &timer));
 	RCCHECK(rclc_executor_add_subscription(&executor, &temperature_subscriber, &msg_temperature, &subscription_callback, ON_NEW_DATA));
 
-	custom_node_message__msg__FloatDataNode__init(&msg_temperature);
-	custom_node_message__msg__StatusNode__init(&msg_status);
+	my_tfg_interfaces__msg__FloatDataNode__init(&msg_temperature);
+	my_tfg_interfaces__msg__StatusNode__init(&msg_status);
 
 	msg_status.work_status = 0;
 	msg_status.position.x = pos_x;

@@ -2,7 +2,7 @@
 import rclpy
 from rclpy.node import Node
 
-from custom_node_message.msg import FloatDataNode, StatusNode
+from my_tfg_interfaces.msg import FloatDataNode, StatusNode
 
 
 class WindowNode(Node):
@@ -23,7 +23,7 @@ class WindowNode(Node):
             FloatDataNode, "temperature", self.callback_sensor_data, 10)
         self.status_publisher_ = self.create_publisher(
             StatusNode, "status_actuator", 10)
-        self.status_timer_ = self.create_timer(30, self.publish_status)
+        self.status_timer_ = self.create_timer(60, self.publish_status)
         self.get_logger().info("Window_" + str(self.status_node_.device_id) + " has been started.")
 
     def callback_sensor_data(self, msg):
