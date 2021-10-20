@@ -1,3 +1,4 @@
 uint8 work_status
 uint16 device_id
+string device_type
 Position position

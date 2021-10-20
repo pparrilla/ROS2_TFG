@@ -14,6 +14,7 @@ class WindowNode(Node):
         self.status_node_ = StatusNode()
         self.status_node_.device_id = 31
         self.status_node_.work_status = 0
+        self.status_node_.device_type = "window"
         self.status_node_.position.x = self.get_parameter("pos_x").value
         self.status_node_.position.y = self.get_parameter("pos_y").value
 
@@ -23,7 +24,7 @@ class WindowNode(Node):
             FloatDataNode, "temperature", self.callback_sensor_data, 10)
         self.status_publisher_ = self.create_publisher(
             StatusNode, "status_actuator", 10)
-        self.status_timer_ = self.create_timer(60, self.publish_status)
+        self.status_timer_ = self.create_timer(20, self.publish_status)
         self.get_logger().info("Window_" + str(self.status_node_.device_id) + " has been started.")
 
     def callback_sensor_data(self, msg):
@@ -39,8 +40,8 @@ class WindowNode(Node):
                 self.get_logger().info("window_" + str(self.status_node_.device_id) + " is closing")
 
     def publish_status(self):
-        msg = self.sensor_data_
-        self.sensor_publisher_.publish(msg)
+        msg = self.status_node_
+        self.status_publisher_.publish(msg)
 
 
 def main(args=None):

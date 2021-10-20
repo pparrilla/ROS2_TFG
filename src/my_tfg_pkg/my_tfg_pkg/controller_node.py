@@ -19,13 +19,13 @@ class ControllerNode(Node):
         self.status_controller_.work_status = 1
         self.status_controller_.position.x = 0.0
         self.status_controller_.position.y = 0.0
-        self.data_nodes_ = {"temperature": [],
-                            "humidity": [], "irrigation": [], "status": []}
-        self.status_nodes_ = []
+        self.data_nodes_ = {}
+        self.status_nodes_ = {}
         self.position_nodes_ = {}
         self.len_position_nodes = 0
         self.json_filename_ = "data_" + \
             self.get_name() + ".json"
+        self.init_data()
 
         # Create all subscribers
         self.temperature_subscriber_ = self.create_subscription(
@@ -38,7 +38,7 @@ class ControllerNode(Node):
             FloatDataNode, "irrigation", self.callback_irrigation, 10)
 
         self.status_subscriber_ = self.create_subscription(
-            FloatDataNode, "status_actuator", self.callback_status, 10)
+            StatusNode, "status_actuator", self.callback_status, 10)
 
         self.save_timer_ = self.create_timer(60, self.save_data)
 
@@ -59,7 +59,13 @@ class ControllerNode(Node):
         self.add_data_to_list("irrigation", msg)
 
     def callback_status(self, msg):
-        self.add_data_to_list("status", msg)
+        self.get_logger().info(msg.device_type + ": " + str(msg.work_status))
+        list_status = {
+            "device_id": msg.device_id,
+            "work_status": msg.work_status,
+            "timestamp": time.time()
+        }
+        self.status_nodes_[msg.device_type].append(list_status)
 
     def add_data_to_list(self, type, msg):
         list_data = {
@@ -73,15 +79,16 @@ class ControllerNode(Node):
         self.get_logger().info("Saving in " + self.json_filename_)
         json_dir_path = os.getenv('JSON_ROS_DIR')
         json_file_path = json_dir_path + self.json_filename_
+        self.data_nodes_.update(self.status_nodes_)
         with open(json_file_path, 'w') as outfile:
             json.dump(self.data_nodes_, outfile)
         self.call_upload_file()
-        self.clean_data()
+        self.init_data()
 
     def call_upload_file(self):
         client = self.create_client(UploadFile, "upload_file")
         while not client.wait_for_service(1.0):
-            self.get_logger().warn("Waiting for Server Add Two Ints...")
+            self.get_logger().warn("Waiting for Firebase Service...")
 
         request = UploadFile.Request()
         request.device_id = self.status_controller_.device_id
@@ -101,10 +108,10 @@ class ControllerNode(Node):
         except Exception as e:
             self.get_logger().error("Service call failed %r" % (e,))
 
-    def clean_data(self):
+    def init_data(self):
         self.data_nodes_ = {"temperature": [],
-                            "humidity": [], "irrigation": [], "status": []}
-        self.status_nodes_ = []
+                            "humidity": [], "irrigation": []}
+        self.status_nodes_ = {"heater": [], "window": []}
 
 
 def main(args=None):
