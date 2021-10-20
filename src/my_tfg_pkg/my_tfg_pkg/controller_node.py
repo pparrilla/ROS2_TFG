@@ -13,12 +13,16 @@ from my_tfg_interfaces.srv import UploadFile
 class ControllerNode(Node):
     def __init__(self):
         super().__init__("controller_1")  # Node name
+        self.declare_parameter("device_id")
+        self.declare_parameter("pos_x", 0.0)
+        self.declare_parameter("pos_y", 0.0)
+
         self.status_controller_ = StatusNode()
 
-        self.status_controller_.device_id = 1
+        self.status_controller_.device_id = self.get_parameter("device_id").value
         self.status_controller_.work_status = 1
-        self.status_controller_.position.x = 0.0
-        self.status_controller_.position.y = 0.0
+        self.status_controller_.position.x = self.get_parameter("pos_x").value
+        self.status_controller_.position.y = self.get_parameter("pos_y").value
         self.data_nodes_ = {}
         self.status_nodes_ = {}
         self.position_nodes_ = {}
@@ -40,7 +44,7 @@ class ControllerNode(Node):
         self.status_subscriber_ = self.create_subscription(
             StatusNode, "status_actuator", self.callback_status, 10)
 
-        self.save_timer_ = self.create_timer(60, self.save_data)
+        self.save_timer_ = self.create_timer(120, self.save_data)
 
         # Needed to create some publishers and timer
         self.get_logger().info(

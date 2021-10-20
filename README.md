@@ -54,9 +54,9 @@ ros2 launch my_tfg_bringup my_tfg.launch.py
 ## To do
 
 - [x] Implementar en ESP32
-- [ ] Análisis de todo el trabajo previo y comparación con otras tecnologías
+- [x] Análisis de todo el trabajo previo y comparación con otras tecnologías
 - [x] Realizar diagramas de comunicación de todo el entorno de trabajo
-- [ ] Aplicar nuevos nodos en función de proyectos de otras empresas.
+- [x] Aplicar nuevos nodos en función de proyectos de otras empresas.
 - [x] Crear interfaz de usuario para la visualización de datos
 - [ ] Mejorar documentación, añadiendo referencias, enlaces, imágenes, tablas..
 - [ ] Probar diferentes middleware de dds y hacer comparativas haciendo uso de algún benchmark
@@ -70,6 +70,7 @@ ros2 launch my_tfg_bringup my_tfg.launch.py
 - [iFarm](https://ifarms.me/)
 - [Nazaríes](https://www.tecnologia-agricola.com/nosotros/)
 - [Agroespia](https://agroespia.com/)
+- [Agrilab](http://agrilab.unilasalle.fr/)
 - [The Robotics Back-End](https://roboticsbackend.com/)
 - [Espressif](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html)
 - [Custom QoS in Micro-ROS](https://micro.ros.org/docs/tutorials/advanced/create_dds_entities_by_ref/)

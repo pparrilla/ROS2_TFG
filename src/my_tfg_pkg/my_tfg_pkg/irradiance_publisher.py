@@ -8,11 +8,12 @@ from my_tfg_interfaces.msg import FloatDataNode
 class IrradianceNode(Node):
     def __init__(self):
         super().__init__("sensor_14")
+        self.declare_parameter("device_id")
         self.declare_parameter("pos_x", 0.0)
         self.declare_parameter("pos_y", 0.0)
 
         self.irrigation_data_ = FloatDataNode()
-        self.irrigation_data_.device_id = 14
+        self.irrigation_data_.device_id = self.get_parameter("device_id").value
         self.irrigation_data_.data = float(random.randint(600,760))
         self.irrigation_data_.position.x == self.get_parameter("pos_x").value
         self.irrigation_data_.position.y == self.get_parameter("pos_y").value
