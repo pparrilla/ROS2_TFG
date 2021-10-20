@@ -21,7 +21,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/StatusNode.msg"
   "msg/Position.msg"
   "msg/SensorArray.msg"
-  "srv/SensorArea.srv"
+  "srv/UploadFile.srv"
 )
 
 ament_package()

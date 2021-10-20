@@ -3,9 +3,11 @@ from functools import partial
 import json
 import time
 import rclpy
+import os
 from rclpy.node import Node
 
 from my_tfg_interfaces.msg import FloatDataNode, StatusNode
+from my_tfg_interfaces.srv import UploadFile
 
 
 class ControllerNode(Node):
@@ -17,12 +19,13 @@ class ControllerNode(Node):
         self.status_controller_.work_status = 1
         self.status_controller_.position.x = 0.0
         self.status_controller_.position.y = 0.0
-        self.data_nodes_ = { "temperature": [], "humidity": [], "irrigation": [], "status": []}
+        self.data_nodes_ = {"temperature": [],
+                            "humidity": [], "irrigation": [], "status": []}
         self.status_nodes_ = []
         self.position_nodes_ = {}
         self.len_position_nodes = 0
-        self.json_file_name_ = "data_" + str(self.status_controller_.device_id) + ".json"
-
+        self.json_filename_ = "data_" + \
+            self.get_name() + ".json"
 
         # Create all subscribers
         self.temperature_subscriber_ = self.create_subscription(
@@ -40,7 +43,8 @@ class ControllerNode(Node):
         self.save_timer_ = self.create_timer(60, self.save_data)
 
         # Needed to create some publishers and timer
-        self.get_logger().info("Controller_" + str(self.status_controller_.device_id) + " has been started.")
+        self.get_logger().info(
+            "Controller_" + str(self.status_controller_.device_id) + " has been started.")
 
     def callback_temperature(self, msg):
         self.get_logger().info("Temperature: " + str(msg.data))
@@ -51,7 +55,7 @@ class ControllerNode(Node):
         self.add_data_to_list("humidity", msg)
 
     def callback_irrigation(self, msg):
-        self.get_logger().info("Irrigaiton: " + str(msg.data))
+        self.get_logger().info("Irrigation: " + str(msg.data))
         self.add_data_to_list("irrigation", msg)
 
     def callback_status(self, msg):
@@ -59,21 +63,48 @@ class ControllerNode(Node):
 
     def add_data_to_list(self, type, msg):
         list_data = {
-            "device_id" : msg.device_id,
-            "value" : msg.data,
-            "timestamp" : time.time()
+            "device_id": msg.device_id,
+            "value": msg.data,
+            "timestamp": time.time()
         }
         self.data_nodes_[type].append(list_data)
 
     def save_data(self):
-        self.get_logger().info("Saving in " + self.json_file_name_ )
-        with open(self.json_file_name_, 'w') as outfile:
+        self.get_logger().info("Saving in " + self.json_filename_)
+        json_dir_path = os.getenv('JSON_ROS_DIR')
+        json_file_path = json_dir_path + self.json_filename_
+        with open(json_file_path, 'w') as outfile:
             json.dump(self.data_nodes_, outfile)
+        self.call_upload_file()
+        self.clean_data()
+
+    def call_upload_file(self):
+        client = self.create_client(UploadFile, "upload_file")
+        while not client.wait_for_service(1.0):
+            self.get_logger().warn("Waiting for Server Add Two Ints...")
+
+        request = UploadFile.Request()
+        request.device_id = self.status_controller_.device_id
+        request.filename = self.json_filename_
+
+        future = client.call_async(request)
+        future.add_done_callback(
+            partial(self.callback_upload_file,
+                    device_id=self.status_controller_.device_id,
+                    filename=self.json_filename_))
+
+    def callback_upload_file(self, future, device_id, filename):
+        try:
+            response = future.result()
+            if response.success:
+                self.get_logger().info("Upload to Firestore done.")
+        except Exception as e:
+            self.get_logger().error("Service call failed %r" % (e,))
 
     def clean_data(self):
-        self.data_nodes_ = { "temperature": [], "humidity": [], "irrigation": [], "status": []}
+        self.data_nodes_ = {"temperature": [],
+                            "humidity": [], "irrigation": [], "status": []}
         self.status_nodes_ = []
-
 
 
 def main(args=None):

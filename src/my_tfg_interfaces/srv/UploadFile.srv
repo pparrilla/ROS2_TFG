@@ -1,0 +1,4 @@
+uint16 device_id
+string filename
+---
+bool success
