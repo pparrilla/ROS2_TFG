@@ -26,7 +26,8 @@ setup(
             "window_node = my_tfg_pkg.window_node:main",
             "irradiance_publisher = my_tfg_pkg.irradiance_publisher:main",
             "temp_hum_publisher = my_tfg_pkg.temp_hum_publisher:main",
-            "firebase_service = my_tfg_pkg.firebase_service:main"
+            "firebase_service = my_tfg_pkg.firebase_service:main",
+            "sqlite_service = my_tfg_pkg.sqlite_service:main"
         ],
     },
 )

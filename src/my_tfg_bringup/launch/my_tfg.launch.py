@@ -118,6 +118,12 @@ def generate_launch_description():
         name="firebase_service"
     )
 
+    sqlite_service = Node(
+        package="my_tfg_pkg",
+        executable="sqlite_service",
+        name="sqlite_service"
+    )
+
     for node in temp_hum_sensor:
         ld.add_action(node)
 
@@ -134,5 +140,6 @@ def generate_launch_description():
         ld.add_action(node)
 
     ld.add_action(firebase_service)
+    ld.add_action(sqlite_service)
 
     return ld

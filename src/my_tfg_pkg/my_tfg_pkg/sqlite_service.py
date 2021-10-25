@@ -1,8 +1,7 @@
 
 #!/usr/bin/env python3
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
+import sqlite3
+from sqlite3 import Error
 import json
 import os
 import rclpy
@@ -10,45 +9,53 @@ from rclpy.node import Node
 
 from my_tfg_interfaces.srv import UploadFile
 
-
-class FirebaseServerNode(Node):
+# TO DO
+class SqliteServerNode(Node):
     def __init__(self):
-        super().__init__("firebase_service")
+        super().__init__("sqlite_service")
         self.main_node_to_listen_ = 1
+        self.db_name_ = 'agricloud.db'
         self.server_ = self.create_service(
-            UploadFile, "upload_firebase", self.callback_upload_file)
-        self.get_logger().info("Firebase service has been started.")
+            UploadFile, "upload_sqlite", self.callback_upload_file)
+        self.get_logger().info("Sqlite service has been started.")
 
     def callback_upload_file(self, request, response):
         if request.device_id == self.main_node_to_listen_:
             self.get_logger().info("Main node contact to server")
-            response.success = self.upload_json(request.filename)
+            response.success = self.upload_sqlite(request.filename)
         else:
             response.success = False
         return response
 
-    def upload_json(self, json_filename):
+    def create_connection(self, db_file):
+        conn = None
+        try:
+            conn = sqlite3.connect(db_file)
+            print(sqlite3.version)
+        except Error as e:
+            print(e)
+
+        return conn
+
+    def upload_sqlite(self, json_filename):
         json_dir_path = os.getenv('JSON_ROS_DIR')
-        cred_file_path = os.getenv('DB_CREDENTIALS')
-        collection_name = 'invernadero_1'
         json_file_path = json_dir_path + json_filename
 
         with open(json_file_path, 'r') as j:
             contents = json.loads(j.read())
 
-        if not firebase_admin._apps:
-            cred = credentials.Certificate(cred_file_path)
-            firebase_admin.initialize_app(cred, {
-                'projectId': "ros2-tfg",
-            })
+        db = self.create_connection(self.db_name_)
+        cursorObj = db.cursor()
 
-        db = firestore.client()
-        self.get_logger().info("Uploading data to Firestore.")
+        self.get_logger().info("Saving in Sqlite3.")
+
         for key, list in contents.items():
             for i in list:
-                print(i)
-                doc_ref = db.collection('AgriCloudMeasures').document(
-                    key).collection(collection_name).add(i)
+                entities = (i["device_id"], i["value"], i["timestamp"])
+                cursorObj.execute("INSERT INTO " + key + "(id, value, timestamp) VALUES(?, ?, ?)", entities)
+
+        db.commit()
+
 
         if os.path.exists(json_file_path):
             os.remove(json_file_path)
@@ -60,7 +67,7 @@ class FirebaseServerNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = FirebaseServerNode()
+    node = SqliteServerNode()
     rclpy.spin(node)
     rclpy.shutdown()
 
