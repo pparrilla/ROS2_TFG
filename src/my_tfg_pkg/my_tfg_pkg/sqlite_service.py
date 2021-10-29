@@ -17,6 +17,7 @@ class SqliteServerNode(Node):
         self.db_name_ = 'agricloud.db'
         self.server_ = self.create_service(
             UploadFile, "upload_sqlite", self.callback_upload_file)
+        self.last_timestamp_ = ""
         self.get_logger().info("Sqlite service has been started.")
 
     def callback_upload_file(self, request, response):
@@ -62,6 +63,7 @@ class SqliteServerNode(Node):
         else:
             self.get_logger().info("File not exist.")
 
+        db.close()
         return True
 
 

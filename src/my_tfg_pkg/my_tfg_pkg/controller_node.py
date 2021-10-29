@@ -50,7 +50,7 @@ class ControllerNode(Node):
         self.status_subscriber_ = self.create_subscription(
             StatusNode, "status_actuator", self.callback_status, 10)
 
-        self.save_timer_ = self.create_timer(60, self.save_data)
+        self.save_timer_ = self.create_timer(300, self.save_data)
         # self.save_timer_firebase_ = self.create_timer(120, self.save_data_firebase)
         # Needed to create some publishers and timer
         self.get_logger().info(
