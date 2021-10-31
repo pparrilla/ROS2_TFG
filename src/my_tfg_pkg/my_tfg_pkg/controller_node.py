@@ -4,6 +4,7 @@ import json
 import datetime
 import rclpy
 import os
+from rclpy.logging import get_logger
 from rclpy.node import Node
 
 from my_tfg_interfaces.msg import FloatDataNode, StatusNode
@@ -28,13 +29,14 @@ class ControllerNode(Node):
         self.data_nodes_ = {}
         self.data_nodes_firebase_ = {}
 
-        self.status_nodes_ = {}
-        self.position_nodes_ = {}
-        self.len_position_nodes = 0
+        self.sensors_info_ = {}
+        self.actuators_info_ = {}
         self.json_filename_ = "data_" + \
             self.get_name() + ".json"
         self.json_filename_firebase_ = "data_" + \
             self.get_name() + "_firebase.json"
+        self.json_nodes_info_filename_ = "nodes_info_" + \
+            self.get_name() + ".json"
         self.init_data()
 
         # Create all subscribers
@@ -44,66 +46,88 @@ class ControllerNode(Node):
         self.humidity_subscriber_ = self.create_subscription(
             FloatDataNode, "humidity", self.callback_humidity, 10)
 
-        self.irrigation_subscriber_ = self.create_subscription(
-            FloatDataNode, "irrigation", self.callback_irrigation, 10)
+        self.irradiance_subscriber_ = self.create_subscription(
+            FloatDataNode, "irradiance", self.callback_irradiance, 10)
 
         self.status_subscriber_ = self.create_subscription(
             StatusNode, "status_actuator", self.callback_status, 10)
 
         self.save_timer_ = self.create_timer(300, self.save_data)
-        # self.save_timer_firebase_ = self.create_timer(120, self.save_data_firebase)
-        # Needed to create some publishers and timer
+        self.save_timer_nodes_ = self.create_timer(300, self.save_nodes_info)
+
         self.get_logger().info(
             "Controller_" + str(self.status_controller_.device_id) + " has been started.")
 
     def callback_temperature(self, msg):
-        # self.get_logger().info("Temperature: " + str(msg.data))
         self.add_data_to_list("temperature", msg)
 
     def callback_humidity(self, msg):
-        # self.get_logger().info("Humidity: " + str(msg.data))
         self.add_data_to_list("humidity", msg)
 
-    def callback_irrigation(self, msg):
-        # self.get_logger().info("Irrigation: " + str(msg.data))
-        self.add_data_to_list("irrigation", msg)
+    def callback_irradiance(self, msg):
+        self.add_data_to_list("irradiance", msg)
 
     def callback_status(self, msg):
-        # self.get_logger().info(msg.device_type + ": " + str(msg.work_status))
-        list_status = {
+        actuator_info = {
+            msg.device_id:{
+                "type" : msg.device_type,
+                "pos_x" : msg.position.x,
+                "pos_y" : msg.position.y
+            }
+        }
+
+        if msg.device_id in self.actuators_info_:
+            if not msg.device_type in self.actuators_info_[msg.device_id]["type"]:
+                self.actuators_info_[msg.device_id]["type"].append(msg.device_type)
+        else:
+            self.actuators_info_.update(actuator_info)
+
+        actuator_data = {
             "device_id": msg.device_id,
             "value": msg.work_status,
             "timestamp": datetime.datetime.now().strftime("%x, %X")
         }
-        self.status_nodes_[msg.device_type].append(list_status)
+        self.data_nodes_[msg.device_type].append(actuator_data)
 
     def add_data_to_list(self, type, msg):
-        list_data = {
+        sensor_info = {
+            msg.device_id:{
+            "type" : [type],
+            "pos_x": msg.position.x,
+            "pos_y": msg.position.y
+            }
+        }
+
+        if msg.device_id in self.sensors_info_:
+            if not type in self.sensors_info_[msg.device_id]["type"]:
+                self.sensors_info_[msg.device_id]["type"].append(type)
+        else:
+            self.sensors_info_.update(sensor_info)
+
+
+        sensor_data = {
             "device_id": msg.device_id,
             "value": msg.data,
             "timestamp": datetime.datetime.now().strftime("%x, %X")
         }
-        self.data_nodes_[type].append(list_data)
+        self.data_nodes_[type].append(sensor_data)
 
     def save_data(self):
         self.save_data_firebase()
-        self.get_logger().info("Saving in " + self.json_filename_)
+        self.get_logger().info("Saving in " + self.json_filename_ + " for sqlite3")
         json_dir_path = os.getenv('JSON_ROS_DIR')
         json_file_path = json_dir_path + self.json_filename_
-        # self.data_nodes_.update(self.status_nodes_)
         with open(json_file_path, 'w') as outfile:
             json.dump(self.data_nodes_, outfile)
         self.call_upload_file("upload_sqlite", self.json_filename_)
         self.init_data()
 
     def save_data_firebase(self):
-        self.get_logger().info("Saving in " + self.json_filename_firebase_ + "for firebase")
+        self.get_logger().info("Saving in " + self.json_filename_firebase_ + " for firebase")
         json_dir_path = os.getenv('JSON_ROS_DIR')
         json_file_path = json_dir_path + self.json_filename_firebase_
 
-        # self.data_nodes_firebase_ = self.data_nodes_
-        self.data_nodes_.update(self.status_nodes_)
-
+        # Add timestamp from last data
         timestamp = datetime.datetime.now().strftime("%x, %X")
         for type_data in self.data_nodes_:
             devices_id = []
@@ -119,6 +143,21 @@ class ControllerNode(Node):
             json.dump(self.data_nodes_firebase_, outfile)
         self.call_upload_file("upload_firebase", self.json_filename_firebase_)
         # self.init_data()
+
+    def save_nodes_info(self):
+        self.get_logger().info("Saving Nodes info in " + self.json_nodes_info_filename_ + " for firebase")
+        json_dir_path = os.getenv('JSON_ROS_DIR')
+        json_file_path = json_dir_path + self.json_nodes_info_filename_
+
+        nodes_info = {
+            "sensors" : self.sensors_info_,
+            "actuators" : self.actuators_info_
+        }
+
+        with open(json_file_path, 'w') as outfile:
+            json.dump(nodes_info, outfile)
+        self.call_upload_file("upload_nodes_info", self.json_nodes_info_filename_)
+
 
     def call_upload_file(self, db, json_name):
         client = self.create_client(UploadFile, db)
@@ -145,10 +184,9 @@ class ControllerNode(Node):
 
     def init_data(self):
         self.data_nodes_ = {"temperature": [],
-                            "humidity": [], "irrigation": []}
+                            "humidity": [], "irradiance": [], "heater": [], "window": []}
         self.data_nodes_firebase_ = {"temperature": [],
-                                     "humidity": [], "irrigation": [], "heater": [], "window": []}
-        self.status_nodes_ = {"heater": [], "window": []}
+                                     "humidity": [], "irradiance": [], "heater": [], "window": []}
 
 
 def main(args=None):
