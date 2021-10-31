@@ -51,6 +51,7 @@ class SqliteServerNode(Node):
         self.get_logger().info("Saving in Sqlite3.")
 
         for key, list in contents.items():
+            cursorObj.execute("CREATE TABLE IF NOT EXISTS " + key + "(id INTEGER, value REAL, timestamp TEXT)")
             for i in list:
                 entities = (i["device_id"], i["value"], i["timestamp"])
                 cursorObj.execute("INSERT INTO " + key + "(id, value, timestamp) VALUES(?, ?, ?)", entities)

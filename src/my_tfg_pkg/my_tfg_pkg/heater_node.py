@@ -30,18 +30,18 @@ class HeaterNode(Node):
 
     def callback_sensor_data(self, msg):
         if abs(msg.position.x - self.status_node_.position.x) < 2.5 and abs(msg.position.y - self.status_node_.position.y) < 1.25:
-            self.get_logger().info("Device id: " + str(msg.device_id) + " Temperature: " + str(msg.data))
-            if msg.data >= self.temperature_to_act_ and self.status_node_.work_status == 0:
+            # self.get_logger().info("Device id: " + str(msg.device_id) + " Temperature: " + str(msg.data))
+            if msg.data <= self.temperature_to_act_ and self.status_node_.work_status == 0:
                 self.status_node_.work_status = 1
                 self.publish_status()
                 self.get_logger().info("heater_" + str(self.status_node_.device_id) + " is on")
-            elif msg.data < self.temperature_to_act_ and self.status_node_.work_status != 0:
+            elif msg.data > self.temperature_to_act_ and self.status_node_.work_status != 0:
                 self.status_node_.work_status = 0
                 self.publish_status()
                 self.get_logger().info("heater_" + str(self.status_node_.device_id) + " is off")
 
     def publish_status(self):
-        self.get_logger().info("Heater_" + str(self.status_node_.device_id) + " publish work_status")
+        # self.get_logger().info("Heater_" + str(self.status_node_.device_id) + " publish work_status")
         msg = self.status_node_
         self.status_publisher_.publish(msg)
 

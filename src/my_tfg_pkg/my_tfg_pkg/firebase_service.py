@@ -56,13 +56,15 @@ class FirebaseServerNode(Node):
         self.get_logger().info("Uploading data to Firestore.")
         for key, list in contents.items():
             for i in list:
-                doc_ref = db.collection('AgriCloudMeasures').document(
+                doc_ref = db.collection('AgriROSMeasures').document(
                     key).collection(collection_name).add(i)
 
         if os.path.exists(json_file_path):
             os.remove(json_file_path)
         else:
             self.get_logger().info("File not exist.")
+
+        return True
 
 
     def upload_json_nodes_info(self, json_filename):
@@ -91,7 +93,7 @@ class FirebaseServerNode(Node):
                     new_data = { type : value }
                     new_dict.update(new_data)
 
-                db.collection('AgriCloudMeasures').document(key).collection(collection_name).document(id_key).set(new_dict)
+                db.collection('AgriROSMeasures').document(key).collection(collection_name).document(id_key).set(new_dict)
 
         if os.path.exists(json_file_path):
             os.remove(json_file_path)

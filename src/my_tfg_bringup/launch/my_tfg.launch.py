@@ -26,35 +26,35 @@ def generate_launch_description():
             ]
         ))
 
-    irrigation_sensor = []
-    irrigation_sensor_id = [15, 16]
-    irrigation_pos = [[6.0,7.0], [2.0, 2.0]]
+    irradiance_sensor = []
+    irradiance_sensor_id = [15, 16]
+    irradiance_pos = [[6.0,7.0], [2.0, 2.0]]
 
     for i in range (2) :
-        irrigation_sensor.append(Node(
+        irradiance_sensor.append(Node(
             package="my_tfg_pkg",
-            executable="irrigation_publisher",
-            name="irrigation_sensor_" + str(irrigation_sensor_id[i]),
+            executable="irradiance_publisher",
+            name="irradiance_sensor_" + str(irradiance_sensor_id[i]),
             parameters=[
-                {"device_id": irrigation_sensor_id[i]},
-                {"pos_x": irrigation_pos[i][0]},
-                {"pos_y": irrigation_pos[i][1]}
+                {"device_id": irradiance_sensor_id[i]},
+                {"pos_x": irradiance_pos[i][0]},
+                {"pos_y": irradiance_pos[i][1]}
             ]
         ))
 
-    irrigation_sensor = []
-    irrigation_sensor_id = [15, 16]
-    irrigation_pos = [[6.0,7.0], [2.0, 2.0]]
+    irradiance_sensor = []
+    irradiance_sensor_id = [15, 16]
+    irradiance_pos = [[6.0,7.0], [2.0, 2.0]]
 
     for i in range (2) :
-        irrigation_sensor.append(Node(
+        irradiance_sensor.append(Node(
             package="my_tfg_pkg",
             executable="irradiance_publisher",
-            name="irrigation_sensor_" + str(irrigation_sensor_id[i]),
+            name="irradiance_sensor_" + str(irradiance_sensor_id[i]),
             parameters=[
-                {"device_id": irrigation_sensor_id[i]},
-                {"pos_x": irrigation_pos[i][0]},
-                {"pos_y": irrigation_pos[i][1]}
+                {"device_id": irradiance_sensor_id[i]},
+                {"pos_x": irradiance_pos[i][0]},
+                {"pos_y": irradiance_pos[i][1]}
             ]
         ))
     # Actuators
@@ -127,7 +127,7 @@ def generate_launch_description():
     for node in temp_hum_sensor:
         ld.add_action(node)
 
-    for node in irrigation_sensor:
+    for node in irradiance_sensor:
         ld.add_action(node)
 
     for node in window_actuator:

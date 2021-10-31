@@ -29,8 +29,8 @@ class WindowNode(Node):
         self.get_logger().info("Window_" + str(self.status_node_.device_id) + " has been started.")
 
     def callback_sensor_data(self, msg):
-        self.get_logger().info("Device id: " + str(msg.device_id) + " Temperature: " + str(msg.data))
         if abs(msg.position.x - self.status_node_.position.x) < 2.5 and abs(msg.position.y - self.status_node_.position.y) < 1.25:
+            # self.get_logger().info("Device id: " + str(msg.device_id) + " Temperature: " + str(msg.data))
             if msg.data >= self.temperature_to_act_ and self.status_node_.work_status == 0:
                 self.status_node_.work_status = 1
                 self.publish_status()
