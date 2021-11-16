@@ -58,8 +58,6 @@ ros2 launch my_tfg_bringup my_tfg.launch.py
 - [x] Realizar diagramas de comunicación de todo el entorno de trabajo
 - [x] Aplicar nuevos nodos en función de proyectos de otras empresas.
 - [x] Crear interfaz de usuario para la visualización de datos
-- [ ] Mejorar documentación, añadiendo referencias, enlaces, imágenes, tablas..
-- [ ] Probar diferentes middleware de dds y hacer comparativas haciendo uso de algún benchmark
 
 ## Bibliografía
 
